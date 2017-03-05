@@ -133,7 +133,7 @@ class Main extends PluginBase implements Listener {
         $playerX = $nbt->Pos[0];
         $playerZ = $nbt->Pos[2];
 
-        $entity = Entity::createEntity($typeToUse, $level->getChunk($playerX >> 4, $playerZ >> 4), $nbt);
+        $entity = Entity::createEntity($typeToUse, $level, $nbt);
         $entity->setNameTag(str_replace("Â", "", $fileParts[2]));
         $entity->setNameTagAlwaysVisible();
         $entity->setNameTagVisible();
