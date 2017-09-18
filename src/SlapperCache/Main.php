@@ -57,22 +57,19 @@ class Main extends PluginBase implements Listener {
     }
 
     public function cacheSlapper(Player $sender, $type, Entity $entity) {
-
-        //serialize and save slapper NBT and inventory data
-
-        $invData = Array();
+        // Serialize and save slapper NBT and inventory data
+        $invData = [];
         $objHash = substr(md5(spl_object_hash($entity->namedtag)), 0, 8);
 
         $serializedNBT = serialize($entity->namedtag);
         $fileName = $this->getDataFolder() . $this->SlapperCacheDir . DIRECTORY_SEPARATOR . $type . "." . $sender->getLevel()->getName() . "." .  $entity->getNameTag() . "." . $objHash . ".slp";
 
         if (file_put_contents($fileName, $serializedNBT)) {
-            $this->getLogger()->debug("Wrote NBT Serial File: $fileName");
+            $this->getLogger()->debug("Wrote NBT serial file: $fileName");
         }
 
-        //save inventory data if human
+        // Save inventory data if human
         if ($entity instanceof SlapperHuman) {
-
             $humanInv = $entity->getInventory();
             $invData[] = $humanInv->getHelmet();
             $invData[] = $humanInv->getChestplate();
@@ -84,15 +81,13 @@ class Main extends PluginBase implements Listener {
 
             $fileName = $this->getDataFolder() . $this->SlapperCacheDir . DIRECTORY_SEPARATOR . $type . "." . $sender->getLevel()->getName() . "." . $entity->getNameTag() . "." . $objHash . ".slp.inv";
             if (file_put_contents($fileName, $serializedInvData)) {
-                $this->getLogger()->debug("Wrote Inventory Serial File: $fileName");
+                $this->getLogger()->debug("Wrote inventory serial file: $fileName");
             }
         }
     }
 
     public function uncacheSlappers($sender = null) {
-
         $this->getLogger()->debug(__FUNCTION__);
-
         $files = glob($this->getDataFolder() . $this->SlapperCacheDir . DIRECTORY_SEPARATOR . "*.slp");
         foreach ($files as $file) {
             $fileName = basename($file, ".slp");
@@ -101,14 +96,13 @@ class Main extends PluginBase implements Listener {
             if ($entity != null) {
                 $entity->spawnToAll();
             } else {
-                $this->getLogger()->debug(__FUNCTION__ . " Slapper $fileName Null, possibly because world is not present, not spawning");
+                $this->getLogger()->debug(__FUNCTION__ . " Slapper $fileName null, possibly because world is not present, not spawning");
             }
 
         }
     }
 
     public function uncacheSlapper($sender, $file) {
-
         $fileName = basename($file, ".slp");
         // like SlapperCreeper.world.Von.d603217a
         // or   SlapperHuman.world.Von.383d2bb4
@@ -124,24 +118,18 @@ class Main extends PluginBase implements Listener {
         $this->getLogger()->debug(__FUNCTION__ . " Processing $fileName, type $typeToUse, world $world");
 
         if (!$data = file_get_contents($file)) {
-            $this->getLogger()->debug(__FUNCTION__ . " Could not open slapper cache file: " . $file);
+            $this->getLogger()->debug(__FUNCTION__ . " Could not open Slapper cache file: " . $file);
             return null;
         }
 
         $nbt = unserialize($data);
-
-        $playerX = $nbt->Pos[0];
-        $playerZ = $nbt->Pos[2];
 
         $entity = Entity::createEntity($typeToUse, $level, $nbt);
         $entity->setNameTag(str_replace("Â", "", $fileParts[2]));
         $entity->setNameTagAlwaysVisible();
         $entity->setNameTagVisible();
         if ($entity instanceof SlapperHuman) {
-
             $file .= ".inv";
-            $this->getLogger()->debug(__FUNCTION__ . " Open Slapper Inventory File " . $file);
-
             $data = file_get_contents($file);
             $inventoryArray = unserialize($data);
 
