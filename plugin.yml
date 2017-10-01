@@ -1,6 +1,6 @@
 name: SlapperCache
 main: SlapperCache\Main
 version: 1.0.1
-api: [3.0.0-ALPHA5, 3.0.0-ALPHA6, 3.0.0-ALPHA7, 3.0.0-ALPHA8]
+api: [3.0.0-ALPHA5, 3.0.0-ALPHA6, 3.0.0-ALPHA7, 3.0.0-ALPHA8, 3.0.0-ALPHA9]
 author: jojoe77777
 description: Cache/uncache slappers!
