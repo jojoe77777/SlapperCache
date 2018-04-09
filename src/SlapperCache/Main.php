@@ -70,12 +70,12 @@ class Main extends PluginBase implements Listener {
 
         // Save inventory data if human
         if ($entity instanceof SlapperHuman) {
-            $humanInv = $entity->getInventory();
-            $invData[] = $humanInv->getHelmet();
-            $invData[] = $humanInv->getChestplate();
-            $invData[] = $humanInv->getLeggings();
-            $invData[] = $humanInv->getBoots();
-            $invData[] = $sender->getInventory()->getHeldItemSlot();
+            $humanArmour = $entity->getArmorInventory();
+            $invData[] = $humanArmour->getHelmet();
+            $invData[] = $humanArmour->getChestplate();
+            $invData[] = $humanArmour->getLeggings();
+            $invData[] = $humanArmour->getBoots();
+            $invData[] = $sender->getInventory()->getHeldItemIndex();
             $invData[] = $sender->getInventory()->getItemInHand();
             $serializedInvData = serialize($invData);
 
@@ -134,12 +134,13 @@ class Main extends PluginBase implements Listener {
             $inventoryArray = unserialize($data);
 
             $humanInv = $entity->getInventory();
-            $humanInv->setHelmet($inventoryArray[0]);
-            $humanInv->setChestplate($inventoryArray[1]);
-            $humanInv->setLeggings($inventoryArray[2]);
-            $humanInv->setBoots($inventoryArray[3]);
-            $entity->getInventory()->setHeldItemIndex($inventoryArray[4], false);
-            $entity->getInventory()->setItemInHand($inventoryArray[5]);
+            $humanArmour = $entity->getArmorInventory();
+            $humanArmour->setHelmet($inventoryArray[0]);
+            $humanArmour->setChestplate($inventoryArray[1]);
+            $humanArmour->setLeggings($inventoryArray[2]);
+            $humanArmour->setBoots($inventoryArray[3]);
+            $humanInv->setHeldItemIndex($inventoryArray[4], false);
+            $humanInv->setItemInHand($inventoryArray[5]);
         }
 
         if ($sender !== null) {
