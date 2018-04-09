@@ -2,6 +2,7 @@
 
 namespace SlapperCache;
 
+use dktapps\SerializedNbtFixer\SerializedNbtFixer;
 use pocketmine\entity\Entity;
 use pocketmine\event\Listener;
 use pocketmine\Player;
@@ -122,7 +123,7 @@ class Main extends PluginBase implements Listener {
             return null;
         }
 
-        $nbt = unserialize($data);
+        $nbt = SerializedNbtFixer::fixSerializedCompoundTag(unserialize($data));
 
         $entity = Entity::createEntity($typeToUse, $level, $nbt);
         $entity->setNameTag(str_replace("Â", "", $fileParts[2]));
