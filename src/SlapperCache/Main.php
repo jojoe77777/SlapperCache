@@ -5,6 +5,8 @@ namespace SlapperCache;
 use dktapps\SerializedNbtFixer\SerializedNbtFixer;
 use pocketmine\entity\Entity;
 use pocketmine\event\Listener;
+use pocketmine\item\Item;
+use pocketmine\item\ItemFactory;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
@@ -136,12 +138,12 @@ class Main extends PluginBase implements Listener {
 
             $humanInv = $entity->getInventory();
             $humanArmour = $entity->getArmorInventory();
-            $humanArmour->setHelmet($inventoryArray[0]);
-            $humanArmour->setChestplate($inventoryArray[1]);
-            $humanArmour->setLeggings($inventoryArray[2]);
-            $humanArmour->setBoots($inventoryArray[3]);
+            $humanArmour->setHelmet(self::fixSerializedItem($inventoryArray[0]));
+            $humanArmour->setChestplate(self::fixSerializedItem($inventoryArray[1]));
+            $humanArmour->setLeggings(self::fixSerializedItem($inventoryArray[2]));
+            $humanArmour->setBoots(self::fixSerializedItem($inventoryArray[3]));
             $humanInv->setHeldItemIndex($inventoryArray[4], false);
-            $humanInv->setItemInHand($inventoryArray[5]);
+            $humanInv->setItemInHand(self::fixSerializedItem($inventoryArray[5]));
         }
 
         if ($sender !== null) {
@@ -149,6 +151,47 @@ class Main extends PluginBase implements Listener {
         }
 
         return $entity;
+    }
+
+    /**
+     * Takes an __PHP_Incomplete_Class and casts it to a stdClass object.
+     * All properties will be made public in this step.
+     *
+     * @see https://stackoverflow.com/a/28353091
+     *
+     * @since  1.1.0
+     * @param  object $object __PHP_Incomplete_Class
+     * @return object
+     */
+    private static function fix_object( $object ) {
+        // preg_replace_callback handler. Needed to calculate new key-length.
+        $fix_key = function($matches){
+            return ":" . strlen( $matches[1] ) . ":\"" . $matches[1] . "\"";
+        };
+
+        // 1. Serialize the object to a string.
+        $dump = serialize( $object );
+
+        // 2. Change class-type to 'stdClass'.
+        $dump = preg_replace( '/^O:\d+:"[^"]++"/', 'O:8:"stdClass"', $dump );
+
+        // 3. Make private and protected properties public.
+        $dump = preg_replace_callback( '/:\d+:"\0.*?\0([^"]+)"/', $fix_key, $dump );
+
+        // 4. Unserialize the modified object again.
+        return unserialize($dump);
+    }
+
+    private static function fixSerializedItem(object $item) : Item{
+        if($item instanceof \__PHP_Incomplete_Class){
+            $stdclass = self::fix_object($item);
+
+            return ItemFactory::get($stdclass->id, $stdclass->meta, $stdclass->count, $stdclass->tags);
+        }elseif($item instanceof Item){
+            return $item;
+        }else{
+            throw new \InvalidArgumentException("unexpected object of type " . get_class($item));
+        }
     }
 
 }
