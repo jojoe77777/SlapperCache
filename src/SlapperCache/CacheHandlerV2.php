@@ -78,9 +78,9 @@ class CacheHandlerV2 implements CacheReader{
 		$trigger_file = $this->getDirectory() . self::STATE_FILE;
 
 		if(!$flag){
-			touch($trigger_file);
+			@touch($trigger_file);
 		}else{
-			unlink($trigger_file);
+			@unlink($trigger_file);
 		}
 	}
 
