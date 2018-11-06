@@ -7,6 +7,7 @@ use pocketmine\event\Listener;
 use pocketmine\item\Item;
 use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\DoubleTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
@@ -65,8 +66,16 @@ class Main extends PluginBase implements Listener {
 			}
 
 			$this->getLogger()->debug(__FUNCTION__ . " Processing $cacheObject->name, type $cacheObject->type, world $cacheObject->level");
-
-			$entity = Entity::createEntity($cacheObject->type, $level, $cacheObject->compoundTag);
+            $nbt = $cacheObject->compoundTag;
+            if(!$nbt->hasTag("Motion", ListTag::class)){
+                $motion = new ListTag("Motion", [
+                    new DoubleTag("", 0.0),
+                    new DoubleTag("", 0.0),
+                    new DoubleTag("", 0.0)
+                ]);
+                $nbt->setTag($motion);
+            }
+			$entity = Entity::createEntity($cacheObject->type, $level, $nbt);
 
 			$entity->setNameTag(str_replace("Â", "", $cacheObject->name));
 			$entity->setNameTagAlwaysVisible();
